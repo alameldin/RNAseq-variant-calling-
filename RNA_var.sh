@@ -25,4 +25,4 @@ STAR --genomeDir /mnt/ls15/scratch/users/hussien/RNA_VAR/genomeDir/GRCh38 --read
 #######
 # For the 2-pass STAR, a new index is then created using splice junction information contained in the file SJ.out.tab from the first pass
 
-STAR --runMode genomeGenerate --genomeDir ${genome_path}/new_index --genomeFastaFiles ${genome_path}/GRCh38_r77.all.fa  --sjdbFileChrStartEnd ${output_path}/star_out/SJ.out.tab --sjdbOverhang 100 --runThreadN 4
+STAR --runMode genomeGenerate --genomeDir ${genome_path}/new_index --genomeFastaFiles ${genome_path}/GRCh38_r77.all.fa  --sjdbFileChrStartEnd ${out_path}/star_out/SJ.out.tab --sjdbOverhang 100 --runThreadN 4
