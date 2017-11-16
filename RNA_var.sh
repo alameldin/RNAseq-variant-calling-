@@ -26,3 +26,16 @@ STAR --genomeDir /mnt/ls15/scratch/users/hussien/RNA_VAR/genomeDir/GRCh38 --read
 # For the 2-pass STAR, a new index is then created using splice junction information contained in the file SJ.out.tab from the first pass
 
 STAR --runMode genomeGenerate --genomeDir ${genome_path}/new_index --genomeFastaFiles ${genome_path}/GRCh38_r77.all.fa  --sjdbFileChrStartEnd ${out_path}/star_out/SJ.out.tab --sjdbOverhang 100 --runThreadN 4
+
+########
+#The resulting index is then used to produce the final alignments as follows:
+mkdir ${out_path}/new_star_out
+cd ${out_path}/new_star_out
+STAR --genomeDir ${genome_path}/new_index --readFilesIn ${data_path}/ERR1050075_1.fastq ${data_path}/ERR1050075_2.fastq --runThreadN 7
+
+########
+#Add read groups, sort, mark duplicates, and create index
+module load picardTools/1.89
+java -jar $PICARD/picard-1.89.jar AddOrReplaceReadGroups I=${out_path}/new_star_out/Aligned.out.sam O=${genome_path}new_index/rg_added_sorted.bam SO=coordinate RGID=id RGLB=library RGPL=platform RGPU=machine RGSM=sample
+
+
