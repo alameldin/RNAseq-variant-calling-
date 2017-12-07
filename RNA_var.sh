@@ -57,3 +57,46 @@ java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T HaplotypeCaller -R ${g
 # Variant filtering
 java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${genome_path}/GATK_indexed/GRCh38_r77.all.fa -V ${out_path}/GATK_out/output.vcf -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" -filterName QD -filter "QD < 2.0" -o ${out_path}/GATK_out/output_filtered.vcf
 
+########
+wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA19240/cg_data/NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz
+wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA19240/cg_data/NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz.tbi
+
+#########
+Comparing the RNA variant calling output with the already published DNA variant calling output (downloaded last 2 lines)
+mkdir /mnt/ls15/scratch/users/hussien/RNA_VAR/vcftool
+cd /mnt/ls15/scratch/users/hussien/RNA_VAR/vcftool
+wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA19240/cg_data/NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz
+wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA19240/cg_data/NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz.tbi
+mv NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz Genome_var.vcf
+cp ${out_path}/output.vcf RNA_var.vcf
+
+###
+#indexing the vcf file
+module load tabix
+module load vcftools
+
+bgzip -c RNA_var.vcf > RNA_var.vcf.gz
+bgzip -c Genome_var.vcf > Genome_var.vcf.gz
+tabix -p vcf *.gz
+####
+# some statistics on the comparizon between the two files
+vcf-compare  Genome_var.vcf.gz RNA_var.vcf.gz > compairing_output_4
+#####
+#split the variant that is in the genome but not in the transcriptome
+vcf-isec -c -f Genome_var.vcf.gz RNA_var.vcf.gz > compairing.vcf_2
+
+#split the variant that is in the Transcriptome but not in the Genome
+vcf-isec -c -f RNA_var.vcf.gz Genome_var.vcf.gz > compairing.vcf_3
+
+#####
+it looks like the interaction is only in 2197 positions
+wc -l compairing.vcf_2
+# 14567358 compairing.vcf_2
+wc -l compairing.vcf_3
+# 151692 compairing.vcf_3
+wc -l NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf
+# 14569555 NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf
+wc -l RNA_var.vcf
+# 153824 RNA_var.vcf
+
+
