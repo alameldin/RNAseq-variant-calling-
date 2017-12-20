@@ -120,13 +120,13 @@ vcf-isec -c -f RNA_var.vcf.gz Genome_var.vcf.gz > compairing.vcf_3
 
 #####
 it looks like the interaction is only in a few (~1000) positions
-wc -l compairing.vcf_2
-#14569603 compairing.vcf_2
+wc compairing.vcf_2
+14473380  144733344 1901611454 compairing.vcf_2
 wc -l compairing.vcf_3
-#156795 compairing.vcf_3
+#28471 compairing.vcf_3
 wc -l Genome_var.vcf
 #14569555 Genome_var.vcf
 wc -l RNA_var.vcf
-#156682 RNA_var.vcf
+# 124531 RNA_var.vcf
 
 
