@@ -128,4 +128,10 @@ wc -l Genome_var.vcf
 wc -l RNA_var.vcf
 # 155982 RNA_var.vcf
 
+# generate the Bam file from the output.vcf
+
+module load BEDTools/2.24.0
+bedToBam -ubam -g ${genome_path}/build37_corID.fa.fai -i ${out_path}/GATK_out/output.vcf > ${out_path}/GATK_out/output.bam
+
+
 
