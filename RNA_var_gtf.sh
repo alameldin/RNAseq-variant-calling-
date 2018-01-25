@@ -59,7 +59,9 @@ cd ${genome_path}/GATK_indexed
 cp ${genome_path}/build37_corID.fa .
 cp ${genome_path}/build37_corID.fa.fai .
 mkdir ${out_path}/GATK_out
+# Split'N'Trim and reassign mapping qualities
 qsub ${script_path}/GATK_1.sh
+# Variant Calling
 qsub ${script_path}/GATK_2.sh
 
 ######
@@ -132,6 +134,7 @@ wc -l RNA_var.vcf
 
 module load BEDTools/2.24.0
 bedToBam -ubam -g ${genome_path}/build37_corID.fa.fai -i ${out_path}/GATK_out/output.vcf > ${out_path}/GATK_out/output.bam
+
 
 
 
