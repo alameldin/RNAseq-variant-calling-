@@ -63,7 +63,8 @@ mkdir ${out_path}/GATK_out
 qsub ${script_path}/GATK_1.sh
 # Variant Calling
 qsub ${script_path}/GATK_2.sh
-
+## Forcing an output in a region that is not covered in the bamout (unnecessarily step only for visualization)
+qsub ${script_path}/GATK_forcedbam.sh
 ######
 # Variant filtering
 #java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${genome_path}/GATK_indexed/GRCh38_r77.all.fa -V ${out_path}/GATK_out/output.vcf -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" -filterName QD -filter "QD < 2.0" -o ${out_path}/GATK_out/output_filtered.vcf
