@@ -69,7 +69,19 @@ qsub ${script_path}/GATK_forcedbam.sh
 # Variant filtering
 #java -Xmx10g -cp $GATK -jar $GATK/GenomeAnalysisTK.jar -T VariantFiltration -R ${genome_path}/GATK_indexed/GRCh38_r77.all.fa -V ${out_path}/GATK_out/output.vcf -window 35 -cluster 3 -filterName FS -filter "FS > 30.0" -filterName QD -filter "QD < 2.0" -o ${out_path}/GATK_out/output_filtered.vcf
 
+######
+module load BEDTools/2.24.0
+samtools view -b ${out_path}/GATK_out/bamout_forcedbam.bam | genomeCoverageBed -ibam  stdin -g ${genome_path}/build37.fa -bg -split > ${out_path}/GATK_out/bed_out_split1
 
+
+cat ${out_path}/GATK_out/bed_out_split | awk '$4>=2 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
+cat ${out_path}/GATK_out/bed_out_split | awk '$4>=1 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
+
+#vcftools --gzvcf myfile.vcf.gz --recode --bed bedfile.bed --out outfile
+module load vcftools
+gzip ${out_path}/GATK_out/output.vcf
+vcftools --gzvcf  ${out_path}/GATK_out/output.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_1 --out ${out_path}/GATK_out/out_vcf_bed_1
+vcftools --gzvcf  ${out_path}/GATK_out/output.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_5 --out ${out_path}/GATK_out/out_vcf_bed_5
 #########
 #Comparing the RNA variant calling output with the already published DNA variant calling output (downloaded last 2 lines)
 mkdir /mnt/ls15/scratch/users/hussien/RNA_VAR_gtf/vcftool
@@ -135,7 +147,6 @@ wc -l RNA_var.vcf
 
 module load BEDTools/2.24.0
 bedToBam -ubam -g ${genome_path}/build37_corID.fa.fai -i ${out_path}/GATK_out/output.vcf > ${out_path}/GATK_out/output.bam
-
 
 
 
