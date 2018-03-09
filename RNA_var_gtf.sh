@@ -73,9 +73,11 @@ qsub ${script_path}/GATK_forcedbam.sh
 module load BEDTools/2.24.0
 samtools view -b ${out_path}/GATK_out/bamout_forcedbam.bam | genomeCoverageBed -ibam  stdin -g ${genome_path}/build37.fa -bg -split > ${out_path}/GATK_out/bed_out_split1
 
-
 cat ${out_path}/GATK_out/bed_out_split | awk '$4>=2 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
 cat ${out_path}/GATK_out/bed_out_split | awk '$4>=1 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
+
+bedtools cluster -i ${out_path}/GATK_out/out_split.bed_1 > ${out_path}/GATK_out/out_split_clustered_1
+bedtools cluster -i ${out_path}/GATK_out/out_split.bed_5 > ${out_path}/GATK_out/out_split_clustered_5
 
 #vcftools --gzvcf myfile.vcf.gz --recode --bed bedfile.bed --out outfile
 module load vcftools
