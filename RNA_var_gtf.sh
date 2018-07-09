@@ -71,19 +71,21 @@ qsub ${script_path}/GATK_forcedbam.sh
 
 ######
 module load BEDTools/2.24.0
-samtools view -b ${out_path}/GATK_out/bamout_forcedbam.bam | genomeCoverageBed -ibam  stdin -g ${genome_path}/build37.fa -bg -split > ${out_path}/GATK_out/bed_out_split1
+samtools view -b ${out_path}/GATK_out/bamout.bam | genomeCoverageBed -ibam  stdin -g ${genome_path}/GRCh38_r77.all.fa -bg -split > ${out_path}/GATK_out/bed_out_split.bed
+##### This step was to filter the bed file based on coverage (to elemenate the variants that were in areas covered less than 1 or 5)
+cat ${out_path}/GATK_out/bed_out_split.bed | awk '$4>=5 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split_1.bed
+cat ${out_path}/GATK_out/bed_out_split.bed | awk '$4>=1 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split_5.bed
 
-cat ${out_path}/GATK_out/bed_out_split | awk '$4>=2 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
-cat ${out_path}/GATK_out/bed_out_split | awk '$4>=1 {print $1 "\t" $2 "\t" $3}' > ${out_path}/GATK_out/out_split.bed
-
-bedtools cluster -i ${out_path}/GATK_out/out_split.bed_1 > ${out_path}/GATK_out/out_split_clustered_1
-bedtools cluster -i ${out_path}/GATK_out/out_split.bed_5 > ${out_path}/GATK_out/out_split_clustered_5
+bedtools cluster -i ${out_path}/GATK_out/out_split_1.bed > ${out_path}/GATK_out/out_split_clustered_1.bed
+bedtools cluster -i ${out_path}/GATK_out/out_split_5.bed > ${out_path}/GATK_out/out_split_clustered_5.bed
 
 #vcftools --gzvcf myfile.vcf.gz --recode --bed bedfile.bed --out outfile
 module load vcftools
-gzip ${out_path}/GATK_out/output.vcf
-vcftools --gzvcf  ${out_path}/GATK_out/output.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_1 --out ${out_path}/GATK_out/out_vcf_bed_1
-vcftools --gzvcf  ${out_path}/GATK_out/output.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_5 --out ${out_path}/GATK_out/out_vcf_bed_5
+
+vcftools --gzvcf  ${out_path}/Ge/Genome_var.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_1.bed --out ${out_path}/GATK_out/out_vcf_1.vcf
+
+vcftools --gzvcf  ${out_path}/GATK_out/Genome_var.vcf.gz --recode --bed ${out_path}/GATK_out/out_split_clustered_5.bed --out ${out_path}/GATK_out/out_vcf_5.vcf
+
 #########
 #Comparing the RNA variant calling output with the already published DNA variant calling output (downloaded last 2 lines)
 mkdir /mnt/ls15/scratch/users/hussien/RNA_VAR_gtf/vcftool
@@ -93,7 +95,6 @@ wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA19240/cg_data/NA1924
 mv NA19240_lcl_SRR832874.wgs.COMPLETE_GENOMICS.20130401.snps_indels_svs_meis.high_coverage.genotypes.vcf.gz Genome_var.vcf.gz
 gunzip Genome_var.vcf.gz
 cp ${out_path}/GATK_out/output.vcf RNA_var.vcf
-
 ###
 #indexing the vcf file
 module load tabix
